@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     concurrency:
       group: captcha-solving
-      cancel-in-progress: false  # Do not cancel ongoing workflows
+      cancel-in-progress: false  # Prevent cancellation of an ongoing workflow
 
     steps:
     - name: Checkout repository
@@ -29,12 +29,12 @@ jobs:
         python -m pip install --upgrade pip
         pip install flask selenium flask-cors
 
-    - name: Run Python captcha solving script
+    - name: Run Python captcha solving server
       run: |
-        python cap_python_code.py
-      env:
-        CAPTURE_IMAGE: ${{ github.event.inputs.captcha_image }}
+        nohup python cap_python_code.py &  # Run the server in the background
 
-    - name: Upload result to GitHub (optional)
+    - name: Trigger the Flask server with captcha image
       run: |
-        echo "Recognized captcha text: ${CAPTURE_TEXT}"
+        curl -X POST http://127.0.0.1:5000/solve_captcha \
+        -H "Content-Type: application/json" \
+        -d '{"captcha_image": "${{ github.event.inputs.captcha_image }}"}'
