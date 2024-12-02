@@ -11,6 +11,9 @@ on:
 jobs:
   solve-captcha:
     runs-on: ubuntu-latest
+    concurrency:
+      group: captcha-solving
+      cancel-in-progress: true
 
     steps:
     - name: Checkout repository
@@ -19,7 +22,7 @@ jobs:
     - name: Set up Python environment
       uses: actions/setup-python@v4
       with:
-        python-version: '3.9'  # Use the Python version of your choice
+        python-version: '3.9'
 
     - name: Install dependencies
       run: |
