@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     concurrency:
       group: captcha-solving
-      cancel-in-progress: true
+      cancel-in-progress: false  # Do not cancel ongoing workflows
 
     steps:
     - name: Checkout repository
