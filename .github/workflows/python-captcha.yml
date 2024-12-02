@@ -28,7 +28,7 @@ jobs:
 
     - name: Run Python captcha solving script
       run: |
-        python your_script.py
+        python cap_python_code.py
       env:
         CAPTURE_IMAGE: ${{ github.event.inputs.captcha_image }}
 
