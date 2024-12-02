@@ -11,13 +11,13 @@ from selenium.webdriver.support import expected_conditions as EC
 app = Flask(__name__)
 CORS(app)
 
-# Configure Chrome options (no headless mode for debugging)
+# Configure Chrome options for headless mode
 chrome_options = webdriver.ChromeOptions()
-chrome_options.add_argument("--headless")
+chrome_options.add_argument("--headless")  # Run in headless mode
 chrome_options.add_argument("--no-sandbox")
 chrome_options.add_argument("--disable-dev-shm-usage")
 
-# Initialize the WebDriver (browser will be visible)
+# Initialize the WebDriver in headless mode
 driver = webdriver.Chrome(options=chrome_options)
 
 @app.route('/solve_captcha', methods=['POST'])
@@ -76,13 +76,11 @@ def solve_captcha():
             recognized_text = recognized_text_element.text.strip().lower()
             print("Extracted Text from Google Lens:", recognized_text)
             return jsonify({"text": recognized_text})
-        except Exception as e:
-            print("No text found or error extracting text.")
-            return jsonify({"text": "No text found", "error": str(e)})
+        except:
+            return jsonify({"text": "No text found"})
     except Exception as e:
-        print("Error processing captcha:", e)
+        print("Error:", e)
         return jsonify({"text": "", "error": str(e)})
 
 if __name__ == '__main__':
-    # Run Flask app
-    app.run(port=5000, debug=True)
+    app.run(port=5000, debug=True, use_reloader=False)
