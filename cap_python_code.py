@@ -6,6 +6,7 @@ from flask_cors import CORS
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+import threading
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -76,11 +77,28 @@ def solve_captcha():
             recognized_text = recognized_text_element.text.strip().lower()
             print("Extracted Text from Google Lens:", recognized_text)
             return jsonify({"text": recognized_text})
-        except:
-            return jsonify({"text": "No text found"})
+        except Exception as e:
+            print("No text found or error extracting text.")
+            return jsonify({"text": "No text found", "error": str(e)})
     except Exception as e:
-        print("Error:", e)
+        print("Error processing captcha:", e)
         return jsonify({"text": "", "error": str(e)})
+    finally:
+        # Terminate the WebDriver session
+        driver.quit()
+
+# Function to stop Flask after solving captcha
+def shutdown_server():
+    func = request.environ.get('werkzeug.server.shutdown')
+    if func is None:
+        raise RuntimeError("Not running with the Werkzeug Server")
+    func()
+
+@app.route('/shutdown', methods=['POST'])
+def shutdown():
+    shutdown_server()
+    return 'Server shutting down...', 200
 
 if __name__ == '__main__':
-    app.run(port=5000, debug=True)
+    # Run Flask app in a separate thread
+    threading.Thread(target=lambda: app.run(port=5000, debug=False)).start()
